@@ -1,0 +1,118 @@
+Q1) Write an efficient recursive algorithm that takes a sentence, starting index and ending index. The algorithm should then return a sentence that contain words between the starting and ending indices. Write recurrence relation of your algorithm and find time complexity using tracing tree method?
+
+Recurrence Relation:
+T(n) = T(k) + O(n)
+	•	T(n) represents the time complexity of extracting a sentence of length n.
+	•	T(k) represents the time to handle the base case or a recursive call on a shorter substring (length k).
+	•	O(n) represents the time for finding the space after the end index and copying the substring (linear in the worst case).
+Time Complexity Analysis (Tracing Tree Method):
+	•	Base Case: Calls for invalid indices terminate immediately with constant time (O(1)). These contribute O(1) to the overall complexity.
+	•	Recursive Calls: For a valid call, the function searches for the space after the end index (O(n) in the worst case) and then makes a recursive call on a potentially shorter substring. The depth of the tree represents the number of recursive calls needed.
+In the worst case:
+	•	The space after the end index might be at the very end of the sentence.
+	•	This leads to a recursive call on the entire sentence (n) followed by calls on progressively smaller substrings.
+	•	The depth of the tree (number of recursive calls) is still logarithmic (log n) due to the reduction in substring size on each call.
+However, the dominant factor in the worst case is the linear search (O(n)) within each call to find the space. Therefore, the overall time complexity is:
+T(n) = O(n * log n)
+
+#include <stdio.h>
+#include <string.h>
+
+char *extract_sentence(char *sentence, int start, int end) {
+  if (start < 0 || end >= strlen(sentence) || start > end) {
+    return ""; // Base case: invalid indices return empty string
+  }
+
+  // Recursive case: find space after end index for substring
+  int word_end = end;
+  while (word_end < strlen(sentence) && sentence[word_end] != ' ') {
+    word_end++;
+  }
+
+  // Allocate memory for substring (including null terminator)
+  char *subsentence = malloc((word_end - start + 1) * sizeof(char));
+  if (subsentence == NULL) {
+    return NULL; // Handle memory allocation failure
+  }
+
+  // Copy substring using strncpy (excluding ending space if present)
+  strncpy(subsentence, sentence + start, word_end - start);
+  subsentence[word_end - start] = '\0';
+
+  return subsentence; // Return extracted sentence
+}
+
+int main() {
+  char sentence[] = "This is a sample sentence";
+  int start = 2;
+  int end = 4;
+
+  char *extracted_sentence = extract_sentence(sentence, start, end);
+  if (extracted_sentence == NULL) {
+    printf("Memory allocation error\n");
+    return 1;
+  }
+
+  printf("Extracted sentence: %s\n", extracted_sentence);
+  free(extracted_sentence); // Free allocated memory
+
+  return 0;
+}
+
+
+
+Q2) Write an efficient algorithm that takes an array A[n1...nn) of sorted integers and return an array with elements that have been circularly shifted k positions to the right. For example a sorted array A=[5, 15, 29, 35, 42] is converted to A[35, 42, 5, 15, 27, 29] after circularly shifted 2 positions, while the same array A =[5, 15, 29, 35, 42] is converted to A[27, 29, 35, 42, 5, 15] after circularly shifted 4 positions. Write the recurrence relation of your solution and find the time complexity of your algorithm using iterative method?
+
+Recurrence Relation (Not Applicable):
+This solution uses an iterative approach, so a recurrence relation isn't directly applicable.
+Time Complexity Analysis:
+	1.	circular_shift function:
+	•	k % n: Constant time (O(1))
+	•	Three calls to reverse: Each reverse has a loop iterating (end - start) / 2 times. In the worst case (entire array reversed), this becomes n / 2.
+	•	Total time for reverse calls: 3 * (n / 2) = O(n)
+	2.	reverse function:
+	•	Loop iterates (end - start) / 2 times in the worst case (entire subarray reversed).
+	•	Each iteration involves constant time operations (swap).
+	•	Time complexity: O((end - start) / 2) = O(n) for the worst case within circular_shift.
+Overall Time Complexity:
+The dominant factor is the three calls to reverse within circular_shift, each with O(n) complexity. Therefore, the overall time complexity of the algorithm is O(n).
+This iterative approach efficiently achieves a linear time complexity for circular shift operations on sorted arrays.
+
+#include <stdio.h>
+
+void circular_shift(int arr[], int n, int k) {
+  k = k % n; // Handle k greater than n (optimization)
+  if (k == 0) {
+    return; // No shift needed if k is 0
+  }
+
+  reverse(arr, 0, n - 1);  // Reverse the entire array
+  reverse(arr, 0, k - 1);  // Reverse the first k elements
+  reverse(arr, k, n - 1);  // Reverse the remaining n-k elements
+}
+
+void reverse(int arr[], int start, int end) {
+  while (start < end) {
+    int temp = arr[start];
+    arr[start] = arr[end];
+    arr[end] = temp;
+    start++;
+    end--;
+  }
+}
+
+int main() {
+  int arr[] = {5, 15, 29, 35, 42};
+  int n = sizeof(arr) / sizeof(arr[0]);
+  int k = 2;
+
+  circular_shift(arr, n, k);
+
+  printf("Shifted array: ");
+  for (int i = 0; i < n; i++) {
+    printf("%d ", arr[i]);
+  }
+  printf("\n");
+
+  return 0;
+}
